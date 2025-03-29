@@ -1,0 +1,169 @@
+<%- include ("partials/header.ejs") %>
+<body>
+<header data-bs-theme="dark">
+  <form action="/nav" method="POST">
+  <div class="navbar navbar-dark bg-dark shadow-sm">
+    <div class="container">
+      <a href="https://github.com/Legaz-le" class="navbar-brand d-flex align-items-center">
+        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor"  class="bi bi-book" viewBox="0 0 16 16">
+        <path d="M1 2.828c.885-.37 2.154-.769 3.388-.893 1.33-.134 2.458.063 3.112.752v9.746c-.935-.53-2.12-.603-3.213-.493-1.18.12-2.37.461-3.287.811zm7.5-.141c.654-.689 1.782-.886 3.112-.752 1.234.124 2.503.523 3.388.893v9.923c-.918-.35-2.107-.692-3.287-.81-1.094-.111-2.278-.039-3.213.492zM8 1.783C7.015.936 5.587.81 4.287.94c-1.514.153-3.042.672-3.994 1.105A.5.5 0 0 0 0 2.5v11a.5.5 0 0 0 .707.455c.882-.4 2.303-.881 3.68-1.02 1.409-.142 2.59.087 3.223.877a.5.5 0 0 0 .78 0c.633-.79 1.814-1.019 3.222-.877 1.378.139 2.8.62 3.681 1.02A.5.5 0 0 0 16 13.5v-11a.5.5 0 0 0-.293-.455c-.952-.433-2.48-.952-3.994-1.105C10.413.809 8.985.936 8 1.783"/>
+        </svg>
+
+        <strong>BookNotes</strong>
+
+      </a>
+      <ul class="nav nav-pills">
+        <li class="nav-item"><input class="nav-link active" aria-current="page" type="submit" name="nav" value="Home"></input></li>
+      </ul>
+    </div>
+  </div>
+  </form>
+</header>
+<main>
+  <% if (currentpage === "Home") { %>
+  <section class="py-5 text-center container">
+    <div class="row py-lg-5">
+      <div class="col-lg-6 col-md-8 mx-auto">
+        <h1 class="fw-light">BookNotes</h1>
+        <p class="lead text-body-secondary">Something short and leading about the collection below—its contents, the creator, etc. Make it short and sweet, but not too short so folks don’t simply skip over it entirely.</p>
+      </div>
+    </div>
+  </section>
+
+  <form action="/addBook" method="POST" style="display: flex; margin-bottom: 20px;">
+    <input type="text" class="form-control" name="newBook" placeholder="Enter a new book to add to the Catalog!" style="flex-grow: 1">
+    <input type="submit" type="button" class="btn btn-primary" style="margin-left: 10px;" value="Search For Book 🔎">
+  </form>
+    <div class="album py-5 bg-body-tertiary">
+      <div class="container">
+        <!-- Single row wrapper for all cards -->
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
+          <% for (let i=0; i < books_info.length; i++) { %>
+            <!-- Individual book column -->
+            <div class="col">
+              <div class="card shadow-sm h-100">
+                <!-- Fixed img tag and added error handling -->
+                <img 
+                  src="https://covers.openlibrary.org/b/id/<%= books_info[i]?.cover %>-L.jpg" 
+                  class="float-image"
+                  alt="Book cover"
+                  style="height: 18rem; width: 12rem; display:inline-block;object-fit: cover"
+                  onerror="this.onerror=null;this.src='/images/placeholder.jpg';"
+                >
+                <div class="card-body d-flex flex-column">
+                  <h1 class = ></h1>
+                  <h5 class="card-text"><%= books_info[i]?.title || "Untitled Book" %></h5>
+                  <p class="card-text"><%= books_info[i]?.author || "Unknown Author" %></p>
+                  <p class="card-text"><%= books_info[i]?.publish || "N/A" %></p>
+                  <p class="card-text mt-auto"><%= books_info[i]?.description?.slice(0, 100) + '...' || "No description available" %></p>
+                  <div class="d-flex justify-content-between align-items-center mt-2">
+                    <div class="btn-group">
+                      <form action="/books/<%= books_info[i].id %>" method="POST" class="d-inline">
+                      <button type="submit" class="btn btn-info btn-sm" name="buttonType" value="View">
+                        <i class="bi bi-eye"></i> View
+                      </button>
+                      <button type="submit" class="btn btn-warning btn-sm" name="buttonType" value="Edit">
+                        <i class="bi bi-pencil"></i> Edit
+                      </button>
+                      <button type="submit" class="btn btn-danger btn-sm" name="buttonType" value="Delete">
+                        <i class="bi bi-trash"></i> Delete
+                      </button>
+                      </form>
+                    </div>
+                    <small class="text-body-secondary">9 mins</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  <% } %>
+</main>
+<% if (currentpage === "Edit") { %>
+    <div class=" container min-vh-100 d-flex pt-5 justify-content-center">
+      <div class="col-3 text-center">
+        <img src="https://covers.openlibrary.org/b/id/<%= book.cover %>-L.jpg" 
+         class="img-fluid rounded shadow mb-4" 
+         alt="Book cover"
+         style="max-height: 400px; object-fit: contain;">
+      </div>
+      <div class="col-9">
+        <form class="card" style="padding: 20px" action="/books" method="POST">
+          <div class="mb-3">
+            <div class="row">
+              <div class="col-sm">
+                <input type="hidden" name="BookId" value="<%= book.id %>">
+                <label for="bookTitle" class="form-label">📚 Book Title</label>
+                <input type="text" class="form-control" id="bookTitle" name="bookTitle" 
+                      value="<%= book.title || '' %>" 
+                      placeholder="Enter the book title!"
+                      required>
+              </div>
+              <div class="col-sm">
+                <label for="bookAuthor" class="form-label">👩 Book Author</label>
+                <input type="text" class="form-control" id="bookAuthor" name="bookAuthor"
+                      value="<%= book.author || '' %>"
+                      placeholder="Enter the book author!"
+                      required>
+              </div>
+            </div>
+    
+            <div class="row mt-3">
+              <div class="col-sm">
+                <label for="publishDate" class="form-label">✍️ Publish Year</label>
+                <input type="number" class="form-control" id="publishDate" name="publishDate"
+                      value="<%= book.publish || '' %>"
+                      placeholder="Enter publish year"
+                      min="1800" max="<%= new Date().getFullYear() %>">
+              </div>
+              <div class="col-sm">
+                <label for="dateRead" class="form-label">📖 Date Read</label>
+                <input type="date" class="form-control" id="dateRead" name="dateRead"
+                      value="<%= book.read || '' %>">
+              </div>
+            </div>
+    
+            <div class="mt-3">
+              <label for="bookNotes" class="form-label">📝 Description</label>
+              <textarea class="form-control" id="bookNotes" name="bookNotes" rows="5"
+                        placeholder="Enter your Description about the book here!"><%= book.description || '' %></textarea>
+            </div>
+    
+            <div class="mt-3">
+              <label for="bookScore" class="form-label">🏆 Book Score (0-10)</label>
+              <input type="number" class="form-control" id="bookScore" name="bookScore"
+                    value="<%= book.score || '' %>"
+                    placeholder="Enter score between 0-10"
+                    min="0" max="10" step="0.1">
+            </div>
+    
+            <div class="mt-4 d-flex justify-content-between">
+              <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+<% } %>
+<% if (currentpage === "View"){ %>
+  <div class="container pt-5 pb-5">
+  <div class="book-details">
+    <img 
+    src="https://covers.openlibrary.org/b/id/<%= book.cover %>-L.jpg" 
+    class="float-image"
+    alt="Book cover"
+    style="height: 18rem; width: 12rem; display:inline-block;object-fit: cover"
+  >
+    <h1><%= book.title %></h1>
+    <p><strong>Author:</strong> <%= book.author %></p>
+    <p><strong>Published:</strong> <%= book.publish %></p>
+    <p><strong>Description: </strong><%= book.description %></p>
+  </div>
+  </div>
+<% } %>
+<%- include("partials/footer.ejs") %>
+ 
+
+</body>
